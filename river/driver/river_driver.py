@@ -10,5 +10,5 @@ class RiverDriver(object):
         self._cached_workflow = None
 
     @abstractmethod
-    def get_available_approvals(self, as_user):
+    def get_available_approvals(self, as_user, workflow_object_pk):
         raise NotImplementedError()

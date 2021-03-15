@@ -24,13 +24,13 @@ class ClassWorkflowObject(object):
                 self._cached_river_driver = OrmDriver(self.workflow, self.wokflow_object_class, self.field_name)
             return self._cached_river_driver
 
-    def get_on_approval_objects(self, as_user):
-        approvals = self.get_available_approvals(as_user)
+    def get_on_approval_objects(self, as_user, workflow_object_pk):
+        approvals = self.get_available_approvals(as_user, workflow_object_pk)
         object_ids = list(approvals.values_list('object_id', flat=True))
         return self.wokflow_object_class.objects.filter(pk__in=object_ids)
 
-    def get_available_approvals(self, as_user):
-        return self._river_driver.get_available_approvals(as_user)
+    def get_available_approvals(self, as_user, workflow_object_pk):
+        return self._river_driver.get_available_approvals(as_user, workflow_object_pk)
 
     @property
     def initial_state(self):

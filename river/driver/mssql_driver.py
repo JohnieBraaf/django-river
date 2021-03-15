@@ -17,18 +17,29 @@ class MsSqlDriver(RiverDriver):
             self.available_approvals_sql_template = f.read().replace("river.dbo.", "")
         self.cursor = connection.cursor()
 
-    def get_available_approvals(self, as_user):
+    def get_available_approvals(self, as_user, workflow_object_pk):
         with connection.cursor() as cursor:
-            cursor.execute(self._clean_sql % {
+            print(self._clean_sql % {
                 "workflow_id": self.workflow.pk,
                 "transactioner_id": as_user.pk,
                 "field_name": self.field_name,
                 "permission_ids": self._permission_ids_str(as_user),
                 "group_ids": self._group_ids_str(as_user),
                 "workflow_object_table": self.wokflow_object_class._meta.db_table,
-                "object_pk_name": self.wokflow_object_class._meta.pk.name
+                "object_pk_name": self.wokflow_object_class._meta.pk.name,
+                "object_filter": workflow_object_pk
             })
 
+            x = cursor.execute(self._clean_sql % {
+                "workflow_id": self.workflow.pk,
+                "transactioner_id": as_user.pk,
+                "field_name": self.field_name,
+                "permission_ids": self._permission_ids_str(as_user),
+                "group_ids": self._group_ids_str(as_user),
+                "workflow_object_table": self.wokflow_object_class._meta.db_table,
+                "object_pk_name": self.wokflow_object_class._meta.pk.name,
+                "object_filter": workflow_object_pk
+            })          
             return TransitionApproval.objects.filter(pk__in=[row[0] for row in cursor.fetchall()])
 
     @staticmethod
@@ -49,4 +60,5 @@ class MsSqlDriver(RiverDriver):
             .replace("'%(permission_ids)s'", "%(permission_ids)s") \
             .replace("'%(group_ids)s'", "%(group_ids)s") \
             .replace("'%(workflow_object_table)s'", "%(workflow_object_table)s") \
-            .replace("'%(object_pk_name)s'", "%(object_pk_name)s")
+            .replace("'%(object_pk_name)s'", "%(object_pk_name)s") \
+            .replace("'%(object_filter)s'", "%(object_filter)s") 

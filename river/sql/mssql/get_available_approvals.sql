@@ -7,6 +7,7 @@ WITH approvals_with_min_priority (workflow_id, transition_id, object_id, min_pri
              FROM river.dbo.river_transitionapproval
              WHERE workflow_id = '%(workflow_id)s'
                AND status = 'PENDING'
+               AND object_id = %(object_filter)s
              group by workflow_id, transition_id, object_id
          ),
      authorized_approvals(id, workflow_id, transition_id, source_state_id, object_id, priority) AS
@@ -23,6 +24,7 @@ WITH approvals_with_min_priority (workflow_id, transition_id, object_id, min_pri
                       LEFT JOIN river.dbo.river_transitionapproval_groups tag on tag.transitionapproval_id = ta.id
              WHERE ta.workflow_id = '%(workflow_id)s'
                AND ta.status = 'PENDING'
+               AND ta.object_id = %(object_filter)s
                AND (ta.transactioner_id is null or ta.transactioner_id = '%(transactioner_id)s')
                AND (tap.id is null or tap.permission_id in ('%(permission_ids)s'))
                AND (tag.id is null or tag.group_id in ('%(group_ids)s'))

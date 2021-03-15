@@ -9,7 +9,7 @@ from river.models import TransitionApproval, PENDING
 
 class OrmDriver(RiverDriver):
 
-    def get_available_approvals(self, as_user):
+    def get_available_approvals(self, as_user, workflow_object_pk):
         those_with_max_priority = With(
             TransitionApproval.objects.filter(
                 workflow=self.workflow, status=PENDING
@@ -34,7 +34,8 @@ class OrmDriver(RiverDriver):
             object_id_as_str=Cast('object_id', CharField(max_length=200)),
             min_priority=those_with_max_priority.col.min_priority
         ).filter(min_priority=F("priority"))
-
+        print('getting approvals')
+        print(approvals_with_max_priority)
         return workflow_objects.join(
             approvals_with_max_priority, object_id_as_str=Cast(workflow_objects.col.pk, CharField(max_length=200))
         ).with_cte(
